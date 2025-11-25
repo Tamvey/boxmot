@@ -1,0 +1,3 @@
+KITTI:
+format: <frame>, <id>, <type>, <truncated>, <occluded>, <alpha>, <bbox_left>, <bbox_top>, <bbox_right>, <bbox_bottom> ... <rotation_y>, <score>
+example: 153 14 Car 0 2 -1.728662 652.362288 183.789605 737.478033 246.613864 1.365956 1.508586 3.485915 1.955738 1.651867 17.818612 -1.622048
