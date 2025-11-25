@@ -8,7 +8,18 @@ RESDET50_TO_KITTI_SIMPLE = {
     8: 'Truck',        # truck
 }
 
-def convert_tracks_to_kitti(dets, frame):
+YOLO_TO_KITTI_SIMPLE = {
+    0: 'Pedestrian',   # person
+    1: 'Cyclist',      # bicycle
+    2: 'Car',          # car
+    3: 'Car',          # motocycle
+    5: 'Van',          # bus
+    6: 'Tram',
+    7: 'Truck',        # truck
+}
+
+
+def convert_tracks_to_kitti(dets, frame, YOLO):
     """
         got: (x, y, x, y, id, conf, cls, ind)
         return: kitti format dets (check formats.txt)
@@ -16,8 +27,13 @@ def convert_tracks_to_kitti(dets, frame):
     res = []
     for det in dets:
         x1, y1, x2, y2, track_id, conf, cls_idx, ind = det
-        clss = "Misc" if cls_idx not in RESDET50_TO_KITTI_SIMPLE.keys() else RESDET50_TO_KITTI_SIMPLE[cls_idx]
-        print(f"Detector res: {cls_idx}, In KITTI: {clss}\n\n")
+
+        if YOLO:
+            clss = "Misc" if cls_idx not in YOLO_TO_KITTI_SIMPLE.keys() else YOLO_TO_KITTI_SIMPLE[cls_idx]
+        else:
+            clss = "Misc" if cls_idx not in RESDET50_TO_KITTI_SIMPLE.keys() else RESDET50_TO_KITTI_SIMPLE[cls_idx]
+            
+        # print(f"Detector res: {cls_idx}, In KITTI: {clss}\n\n")
         res += [
             [
                 frame,
