@@ -7,7 +7,7 @@ from effdet import create_model
 from effdet.config import get_efficientdet_config
 from torchvision import transforms
 
-from boxmot import DeepOcSort, ByteTrack, OcSort
+from boxmot import DeepOcSort, ByteTrack, OcSort, HybridSort
 from boxmot.utils.ops import letterbox
 
 from trackers_output.utils import *
@@ -73,9 +73,10 @@ def run_test(model, config, tracker, reid, folder):
             break 
 
         frame = cv2.imread(BASE_DATA_DIR + folder + '/' + imgs[c])
-        
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
         # Apply letterbox resizing
-        frame_letterbox, ratio, (dw, dh) = letterbox(frame, new_shape=config.image_size, auto=False, scaleFill=False)
+        frame_letterbox, ratio, (dw, dh) = letterbox(frame, new_shape=config.image_size, auto=False, scaleFill=False, scaleup=False)
         
         # Preprocess frame for EfficientDet (resize and normalize)
         frame_tensor = preprocess(frame_letterbox).unsqueeze(0).to(device)
@@ -84,7 +85,7 @@ def run_test(model, config, tracker, reid, folder):
         with torch.no_grad():
             detections = model(frame_tensor)[0] 
         # Assuming detections is shaped [100, 6], with [x1, y1, x2, y2, confidence, class]
-        confidence_threshold = 0.5
+        confidence_threshold = 0.3
         
         # Filter detections based on confidence threshold
         mask = detections[:, 4] >= confidence_threshold
@@ -116,7 +117,7 @@ def run_test(model, config, tracker, reid, folder):
         tracker[1].plot_results(frame, show_trajectories=False)
     
         # Display the frame
-        # cv2.imshow('BoXMOT + EfficientDet', frame)
+        cv2.imshow('BoXMOT + EfficientDet', frame)
 
         # Simulate wait for key press to continue, press 'q' to exit
         key = cv2.waitKey(1) & 0xFF
@@ -137,7 +138,7 @@ def run_test(model, config, tracker, reid, folder):
 
 if __name__ == "__main__":
     dirs = [i for i in sorted(os.listdir(BASE_DATA_DIR))]
-    detectors = ['tf_efficientdet_d1'] # , 'resdet50'
+    detectors = ['tf_efficientdet_d3'] # , 'resdet50'
     for tracker in trackers.items():
         for i, det in enumerate(detectors):
             # init detector

@@ -2,9 +2,10 @@ RESDET50_TO_KITTI_SIMPLE = {
     1: 'Pedestrian',   # person
     2: 'Cyclist',      # bicycle
     3: 'Car',          # car
+    4: 'Car',          # motocycle
     6: 'Van',          # bus
     7: 'Tram',
-    8: 'Truck',         # truck
+    8: 'Truck',        # truck
 }
 
 def convert_tracks_to_kitti(dets, frame):
