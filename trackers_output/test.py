@@ -36,9 +36,9 @@ trackers = {
     #     half=False
     # )
     # ,
-    'bytetracker' : ByteTrack()
+    # 'bytetracker' : ByteTrack()
     # ,
-    # 'oc_sort' : OcSort()
+    'oc_sort' : OcSort()
 }
 
 preprocess = transforms.Compose([
@@ -105,7 +105,7 @@ def run_test(model, image_size, tracker, reid, folder, auto_scalable=False):
                 detections = model(frame_tensor)[0]
 
         # Assuming detections is shaped [100, 6], with [x1, y1, x2, y2, confidence, class]
-        confidence_threshold = 0.3
+        confidence_threshold = 0.5
         mask = detections[:, 4] >= confidence_threshold
         filtered_dets = detections[mask]
 
@@ -182,18 +182,20 @@ if __name__ == "__main__":
         'resdet50' : eval_detector('resdet50'), 
         'tf_efficientdet_d1' : eval_detector('tf_efficientdet_d1'), 
         'tf_efficientdet_lite1' : eval_detector('tf_efficientdet_lite1'),
-        'yolov8n' : eval_yolo('yolov8n')
+        'yolov8n' : eval_yolo('yolov8n'),
+        'yolov8m' : eval_yolo('yolov8m'),
+        'yolov8l' : eval_yolo('yolov8l'),
+        'yolo11l' : eval_yolo('yolo11l'),
     }
 
-    use_detector = 'resdet50'
+    use_detector = 'yolov8l'
     for tracker in trackers.items():
-        for i, det in enumerate(detectors):
+        try:
+            reid_name = str(tracker[1].model.weights)
+        except Exception:
+            reid_name = "no-reid"
+        for dir in dirs:
             try:
-                reid_name = str(tracker[1].model.weights)
+                run_test(detectors[use_detector][0], detectors[use_detector][1].image_size, tracker, reid_name, dir, False)
             except Exception:
-                reid_name = "no-reid"
-            for dir in dirs:
-                try:
-                    run_test(detectors[use_detector][0], detectors[use_detector][1].image_size, tracker, reid_name, dir, False)
-                except Exception:
-                    run_test(detectors[use_detector], (640, 640), tracker, reid_name, dir, True)
+                run_test(detectors[use_detector], (640, 640), tracker, reid_name, dir, True)
